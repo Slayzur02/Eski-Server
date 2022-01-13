@@ -11,6 +11,7 @@ type AppUser struct {
 	Email     string
 	Username  string
 	Hashedpwd string
+	Verified  bool
 }
 
 type Game struct {

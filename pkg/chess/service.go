@@ -13,6 +13,7 @@ type Repository interface {
 type Service interface {
 	GetMovesAndBoard() *BoardAndMoves
 	MovePieceOrPromote(*BoardMoveMsg)
+	CreateNewBoardClientMsg(*BoardAndMoves) *ClientNewBoardState
 }
 
 type service struct {
@@ -51,5 +52,12 @@ func (s *service) MovePieceOrPromote(m *BoardMoveMsg) {
 		if err != nil {
 			log.Println(err)
 		}
+	}
+}
+
+func (s *service) CreateNewBoardClientMsg(bm *BoardAndMoves) *ClientNewBoardState {
+	return &ClientNewBoardState{
+		MsgType:       "newBoard",
+		BoardAndMoves: *bm,
 	}
 }

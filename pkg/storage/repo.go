@@ -1,10 +1,6 @@
 package storage
 
 import (
-	"log"
-
-	"database/sql"
-
 	_ "github.com/lib/pq"
 
 	"github.com/Slayzur02/GoChess/pkg/internal_sql"
@@ -27,19 +23,14 @@ func instantiateRedis() *redis.Client {
 }
 
 // instantiates database with queries
-func instantiateDB() *internal_sql.Queries {
-	db, err := sql.Open("postgres", "user=macbookpro dbname=eski_chess sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func instantiateDB(db internal_sql.DBTX) *internal_sql.Queries {
 	return internal_sql.New(db)
 }
 
 // return new repo
-func NewRepo() *Repo {
+func NewRepo(db internal_sql.DBTX) *Repo {
 	return &Repo{
 		mc: instantiateRedis(),
-		db: instantiateDB(),
+		db: instantiateDB(db),
 	}
 }

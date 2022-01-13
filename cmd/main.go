@@ -1,7 +1,11 @@
 package main
 
 import (
+	"database/sql"
 	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 
 	publicHttp "net/http"
 
@@ -11,10 +15,25 @@ import (
 )
 
 func main() {
-	repo := storage.NewRepo()
-	a := auth.NewService(repo)
+	// load environment and get keys
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal(err)
+	}
+	user := os.Getenv("user")
 
-	router := http.HandleCreation(&a)
+	// get db
+	db, err := sql.Open("postgres", "user="+user+" dbname=eski_chess sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+
+	repo := storage.NewRepo(db)
+
+	a := auth.NewService(repo)
+	router := http.HandleCreation(a)
 
 	log.Fatal(publicHttp.ListenAndServe(":8080", router))
 }

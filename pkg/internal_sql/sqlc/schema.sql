@@ -1,8 +1,9 @@
 CREATE TABLE app_user (
   id    BIGSERIAL PRIMARY KEY,
-  email text      NOT NULL,
+  email text NOT NULL,
   username  text NOT NULL,
-  hashedPwd  text NOT NULL
+  hashedPwd  text NOT NULL,
+	verified boolean NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE game (

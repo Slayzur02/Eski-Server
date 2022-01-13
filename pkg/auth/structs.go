@@ -7,6 +7,6 @@ type UserCreation struct {
 }
 
 type LogInCredentials struct {
-	Username string
+	Email    string
 	Password string
 }

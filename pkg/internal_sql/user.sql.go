@@ -7,23 +7,6 @@ import (
 	"context"
 )
 
-const getHashedPwdAndIdfromUsername = `-- name: GetHashedPwdAndIdfromUsername :one
-SELECT app_user.id, app_user.hashedPwd from app_user
-	WHERE app_user.username = $1
-`
-
-type GetHashedPwdAndIdfromUsernameRow struct {
-	ID        int64
-	Hashedpwd string
-}
-
-func (q *Queries) GetHashedPwdAndIdfromUsername(ctx context.Context, username string) (GetHashedPwdAndIdfromUsernameRow, error) {
-	row := q.db.QueryRowContext(ctx, getHashedPwdAndIdfromUsername, username)
-	var i GetHashedPwdAndIdfromUsernameRow
-	err := row.Scan(&i.ID, &i.Hashedpwd)
-	return i, err
-}
-
 const getIDFromEmail = `-- name: GetIDFromEmail :one
 SELECT app_user.id FROM app_user
 	WHERE app_user.email = $1
@@ -50,6 +33,24 @@ func (q *Queries) GetIDfromUsername(ctx context.Context, username string) (int64
 	return id, err
 }
 
+const getPwdIdVerifyfromEmail = `-- name: GetPwdIdVerifyfromEmail :one
+SELECT app_user.id, app_user.hashedPwd, app_user.verified from app_user
+	WHERE app_user.email = $1
+`
+
+type GetPwdIdVerifyfromEmailRow struct {
+	ID        int64
+	Hashedpwd string
+	Verified  bool
+}
+
+func (q *Queries) GetPwdIdVerifyfromEmail(ctx context.Context, email string) (GetPwdIdVerifyfromEmailRow, error) {
+	row := q.db.QueryRowContext(ctx, getPwdIdVerifyfromEmail, email)
+	var i GetPwdIdVerifyfromEmailRow
+	err := row.Scan(&i.ID, &i.Hashedpwd, &i.Verified)
+	return i, err
+}
+
 const insertUser = `-- name: InsertUser :one
 INSERT INTO app_user (email, username, hashedPwd) values ($1, $2, $3) RETURNING app_user.id
 `
@@ -65,4 +66,14 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (int64, 
 	var id int64
 	err := row.Scan(&id)
 	return id, err
+}
+
+const verifyEmail = `-- name: VerifyEmail :exec
+UPDATE app_user SET verified = true
+	WHERE app_user.email = $1
+`
+
+func (q *Queries) VerifyEmail(ctx context.Context, email string) error {
+	_, err := q.db.ExecContext(ctx, verifyEmail, email)
+	return err
 }

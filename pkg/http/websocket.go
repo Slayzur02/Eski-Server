@@ -25,25 +25,6 @@ func upgradeWs(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) 
 	return ws, nil
 }
 
-type ClientNewBoardState struct {
-	MsgType       string
-	BoardAndMoves chess.BoardAndMoves
-}
-
-func createNewBoardClientMsg(bm *chess.BoardAndMoves) *ClientNewBoardState {
-	return &ClientNewBoardState{
-		MsgType:       "newBoard",
-		BoardAndMoves: *bm,
-	}
-}
-
-type ClientChessIncomingMsg struct {
-	MoveType     string `json:"type"`
-	StartSquare  string `json:"start"`
-	EndSquare    string `json:"end"`
-	PieceInitial string `json:"piece"`
-}
-
 func reader(conn *websocket.Conn) {
 
 	// create new game with UCI notation
@@ -52,7 +33,7 @@ func reader(conn *websocket.Conn) {
 	bAndM := chessManager.GetMovesAndBoard()
 
 	// get valid moves and write to it with ClientNewBoardState
-	conn.WriteJSON(*createNewBoardClientMsg(bAndM))
+	conn.WriteJSON(chessManager.CreateNewBoardClientMsg(bAndM))
 
 	for {
 		// read in a message
@@ -72,7 +53,7 @@ func reader(conn *websocket.Conn) {
 		chessManager.MovePieceOrPromote(&m)
 
 		bAndM = chessManager.GetMovesAndBoard()
-		err = conn.WriteJSON(*createNewBoardClientMsg(bAndM))
+		err = conn.WriteJSON(chessManager.CreateNewBoardClientMsg(bAndM))
 		if err != nil {
 			log.Println(err)
 		}

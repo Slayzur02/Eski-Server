@@ -2,9 +2,10 @@
 -- +goose StatementBegin
 CREATE TABLE app_user (
   id    BIGSERIAL PRIMARY KEY,
-  email text      NOT NULL,
+  email text NOT NULL,
   username  text NOT NULL,
-  hashedPwd  text NOT NULL
+  hashedPwd  text NOT NULL,
+	verified boolean NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE game (
@@ -25,7 +26,7 @@ CREATE TABLE game_moves (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP Table app_user;
-DROP TABLE game;
 DROP TABLE game_moves;
+DROP TABLE game;
+DROP Table app_user;
 -- +goose StatementEnd
